@@ -22,7 +22,7 @@ bool playerMove(char board[3][3], int number)
 
 	if (board[row][col] != ' ')
 	{
-		cout << "Клетка занята" << endl;
+		cout << "The cell is occupied" << endl;
 		return false;
 	}
 
