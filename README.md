@@ -66,7 +66,3 @@ The game asks again instead of crashing:
 | `0`, `10`     | `Enter a number from 1 to 9` |
 | `abc`         | `Enter a number from 1 to 9` |
 | Occupied cell | `The cell is occupied`       |
-
-## Screenshots
-
-![Gameplay](screenshots/gameplay.png)
