@@ -1,6 +1,4 @@
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
 using namespace std;
 
 // function to create a field
@@ -28,126 +26,6 @@ bool playerMove(char board[3][3], int number)
 
 	board[row][col] = 'X';
 		return true;
-}
-
-// looks for a winning move for the player
-bool findWinningMove(char board[3][3], char player)
-{
-	// string checking
-	for (int i = 0; i < 3; i++)
-	{
-		// combination 1
-		if (board[i][0] == player && board[i][1] == player && board[i][2] == ' ')
-		{
-			board[i][2] = 'O';
-			return true;
-		}
-
-		// combination 2
-		if (board[i][0] == player && board[i][2] == player && board[i][1] == ' ')
-		{
-			board[i][1] = 'O';
-			return true;
-		}
-
-		// combination 3
-		if (board[i][1] == player && board[i][2] == player && board[i][0] == ' ')
-		{
-			board[i][0] = 'O';
-			return true;
-		}
-
-	}
-
-	// column checking
-	for (int i = 0; i < 3; i++)
-	{
-		// combination 1
-		if (board[0][i] == player && board[1][i] == player && board[2][i] == ' ')
-		{
-			board[2][i] = 'O';
-			return true;
-		}
-
-		// combination 2
-		if (board[0][i] == player && board[2][i] == player && board[1][i] == ' ')
-		{
-			board[1][i] = 'O';
-			return true;
-		}
-
-		// combination 3
-		if (board[1][i] == player && board[2][i] == player && board[0][i] == ' ')
-		{
-			board[0][i] = 'O';
-			return true;
-		}
-	}
-
-	// checking diagonals
-	// 1 diagonal
-
-	// combination 1
-	if (board[0][0] == player && board[1][1] == player && board[2][2] == ' ')
-	{
-		board[2][2] = 'O';
-		return true;
-	}
-
-	// combination 2
-	if (board[0][0] == player && board[2][2] == player && board[1][1] == ' ')
-	{
-		board[1][1] = 'O'; 
-		return true;
-	}
-
-	// combination 3
-	if (board[1][1] == player && board[2][2] == player && board[0][0] == ' ')
-	{
-		board[0][0] = 'O';
-		return true;
-	}
-
-	// 2 diagonal
-	// combination 1
-	if (board[0][2] == player && board[1][1] == player && board[2][0] == ' ')
-	{
-		board[2][0] = 'O';
-		return true;
-	}
-
-	// combination 2
-	if (board[0][2] == player && board[2][0] == player && board[1][1] == ' ')
-	{
-		board[1][1] = 'O';
-		return true;
-	}
-
-	// combination 3
-	if (board[1][1] == player && board[2][0] == player && board[0][2] == ' ')
-	{
-		board[0][2] = 'O';
-		return true;
-	}
-
-	return false;
-
-}
-
-// function for computer running
-void computerMove(char board[3][3])
-{
-	if (findWinningMove(board, 'O')) return;
-	if (findWinningMove(board, 'X')) return;
-
-	int row, col;
-	do 
-	{
-		row = rand() % 3;      
-		col = rand() % 3;      
-	} while (board[row][col] != ' ');
-
-	board[row][col] = 'O';
 }
 
 // function to check the winner
@@ -226,10 +104,74 @@ int checkWin(char board[3][3])
 		return 3;
 }
 
+int minmax(char board[3][3], bool isComputerTurn) {
+	int res = checkWin(board);
+	if (res == 1) {
+		return -1;
+	}
+	if (res == 2) {
+		return 1;
+	}
+	if (res == 3) {
+		return 0;
+	}
+	if(isComputerTurn) {
+		int best = -2;
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				if (board[i][j] == ' ') {
+					board[i][j] = 'O';
+					int score1 = minmax (board, false);
+					board[i][j] = ' ';
+					if (score1 > best) {
+						best = score1;
+					}
+				}
+			}
+		}
+		return best;
+	}
+	int best = 2;
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			if (board[i][j] == ' ') {
+				board[i][j] = 'X';
+				int score2 = minmax (board, true);
+				board[i][j] = ' ';
+				if (score2 < best) {
+					best = score2;
+				}
+			}
+		}
+	}
+	return best;
+}
+
+// function for computer running
+void computerMove(char board[3][3]) {
+	int bestScore = -2;
+	int bestRow = -1;
+	int bestCol = -1;
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			if (board[i][j] == ' ') {
+				board[i][j] = 'O';
+				 int grade = minmax(board, false);
+				board[i][j] = ' ';
+				if (grade > bestScore) {
+					bestScore = grade;
+					bestRow = i;
+					bestCol = j;
+				}
+			}
+		}
+	}
+	board[bestRow][bestCol] = 'O';
+}
+
 
 int main()
 {
-	srand(time(0));
 	char board[3][3];
 	char exit;
 	while (true)
@@ -246,10 +188,25 @@ int main()
 		{
 			printBoard(board);
 
-
+           //check for signs
 			int num;
 			cout << "Enter cell number ";
 			cin >> num;
+			if (cin.fail())
+			{
+				cin.clear();
+				cin.ignore(1000, '\n');
+				cout << "Enter a number from 1 to 9" << endl;
+				continue;
+			}
+
+			//range check
+			if (num < 1 || num > 9)
+			{
+				cout << "Enter a number from 1 to 9" << endl;
+				continue;
+			}
+
 			if (!playerMove(board, num)) continue;
 
 
@@ -290,6 +247,5 @@ int main()
 			break;
 		}
 	}
-
 	return 0;
 }
